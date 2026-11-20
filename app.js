@@ -285,9 +285,122 @@ class Program {
     if (!terminalInput.hidden) terminalInput.focus({ preventScroll: true });
   });
 
-  function openSocket() {
-    const scheme = location.protocol === "https:" ? "wss:" : "ws:";
-    return new WebSocket(`${scheme}//${location.host}/terminal`);
+  const onGitHubPages = location.hostname.endsWith(".github.io");
+  let publicInput;
+
+  if (onGitHubPages) {
+    const inputPanel = document.createElement("details");
+    inputPanel.style.padding = "10px 14px";
+    const summary = document.createElement("summary");
+    summary.textContent = "مدخلات البرنامج (اختياري، قبل التشغيل)";
+    summary.style.cursor = "pointer";
+    publicInput = document.createElement("textarea");
+    publicInput.dir = "ltr";
+    publicInput.rows = 3;
+    publicInput.maxLength = 12000;
+    publicInput.setAttribute("aria-label", "مدخلات البرنامج قبل التشغيل");
+    publicInput.style.cssText = "display:block;width:100%;margin-top:8px;padding:8px;font:inherit";
+    inputPanel.append(summary, publicInput);
+    terminal.before(inputPanel);
+  }
+
+  function openSocket(preloadedInput) {
+    if (!onGitHubPages) {
+      const scheme = location.protocol === "https:" ? "wss:" : "ws:";
+      return new WebSocket(`${scheme}//${location.host}/terminal`);
+    }
+
+    const connection = new EventTarget();
+    const controller = new AbortController();
+    const lines = [];
+    let request;
+    let closed = false;
+    let submitted = false;
+
+    function emit(message) {
+      if (!closed) {
+        connection.dispatchEvent(new MessageEvent("message", { data: JSON.stringify(message) }));
+      }
+    }
+
+    connection.close = () => {
+      if (closed) return;
+      closed = true;
+      controller.abort();
+      connection.dispatchEvent(new Event("close"));
+    };
+
+    async function execute(stdin) {
+      if (submitted || closed) return;
+      submitted = true;
+      const timeout = setTimeout(() => controller.abort(), 18000);
+
+      try {
+        const response = await fetch("https://wandbox.org/api/compile.json", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...request, stdin, save: false }),
+          signal: controller.signal
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const result = await response.json();
+        if (typeof result.status !== "string" && !result.signal) {
+          throw new Error("Invalid runner response");
+        }
+
+        for (const [stream, text] of [
+          ["stderr", result.compiler_message],
+          ["stdout", result.program_output],
+          ["stderr", result.program_error]
+        ]) {
+          if (text) emit({ type: "output", stream, text });
+        }
+
+        const ok = result.status === "0" && !result.signal;
+        const text = ok ? "انتهى البرنامج." : result.signal
+          ? `توقّف البرنامج: ${result.signal}`
+          : result.compiler_error ? "فشل التجميع." : "فشل التشغيل.";
+        emit({ type: "done", text, ok });
+      } catch {
+        emit({ type: "done", text: "خدمة التشغيل مش متاحة حاليًا. جرّب بعد شوي.", ok: false });
+      } finally {
+        clearTimeout(timeout);
+        connection.close();
+      }
+    }
+
+    connection.send = (raw) => {
+      if (closed) return;
+      const message = JSON.parse(raw);
+
+      if (message.type === "start") {
+        const { language, code } = message;
+        const compilers = {
+          cpp: "gcc-13.2.0",
+          java: "openjdk-jdk-21+35",
+          csharp: "mono-6.12.0.199"
+        };
+        request = { compiler: compilers[language], code };
+        if (language === "cpp") request.options = "c++17";
+        if (language === "java") {
+          request.code = "public class prog { public static void main(String[] args) throws Exception { Main.main(args); } }";
+          request.codes = [{ file: "Main.java", code }];
+        }
+
+        if (preloadedInput !== undefined) execute(preloadedInput);
+        else emit({ type: "ready" });
+      } else if (message.type === "input") {
+        lines.push(message.text);
+      } else if (message.type === "eof") {
+        execute(lines.length ? lines.join("\n") + "\n" : "");
+      }
+    };
+
+    queueMicrotask(() => {
+      if (!closed) connection.dispatchEvent(new Event("open"));
+    });
+    return connection;
   }
 
   function send(socket, message) {
@@ -314,7 +427,7 @@ class Program {
 
     let socket;
     try {
-      socket = openSocket();
+      socket = openSocket(publicInput?.value);
     } catch {
       statusLabel.textContent = "افتح الموقع من http://127.0.0.1:3000/";
       return;
