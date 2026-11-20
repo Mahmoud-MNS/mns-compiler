@@ -5,21 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="موقع للتدرّب على البرمجة بلغات C++ وJava وC#.">
   <title>MNS Compiler</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
   <script src="questions.js" defer></script>
-  <script src="app.js" defer></script>
+  <script src="app.js?v=2" defer></script>
 </head>
 
 <body>
   <header class="site-header">
-    <div class="container mns-header">
+    <div class="container header-row">
       <h1 class="mns-wordmark" dir="ltr">MNS <span>Compiler</span></h1>
 
-      <div class="theme-switch" role="group" aria-label="مظهر الموقع">
-        <button type="button" data-theme-choice="dark" aria-pressed="true">
+      <div class="theme-switch" dir="ltr" role="group" aria-label="مظهر الموقع">
+        <button type="button" data-theme="dark" aria-pressed="true">
           <span aria-hidden="true">☾</span> Dark
         </button>
-        <button type="button" data-theme-choice="light" aria-pressed="false">
+        <button type="button" data-theme="light" aria-pressed="false">
           <span aria-hidden="true">☀</span> Light
         </button>
       </div>
@@ -27,11 +27,11 @@
   </header>
 
   <main class="container workspace">
-    <aside class="panel exercises" aria-labelledby="exercises-title">
-      <h2 id="exercises-title">تمارين البرمجة</h2>
-      <nav id="questions" aria-label="قائمة التمارين"></nav>
-      <article id="statement">
-        <p>اختر تمرينًا لعرض السؤال ومثال على المدخلات والمخرجات.</p>
+    <aside class="panel questions-panel" aria-labelledby="exercises-title">
+      <h2 id="exercises-title" lang="en" dir="ltr">Questions</h2>
+      <nav id="questions" class="question-grid" dir="ltr" aria-label="قائمة التمارين"></nav>
+      <article id="statement" class="question-detail">
+        <p class="muted">اختر تمرينًا لعرض السؤال ومثال على المدخلات والمخرجات.</p>
       </article>
     </aside>
 
@@ -40,7 +40,7 @@
         <div class="panel-header">
           <h2 id="editor-title">محرّر الكود</h2>
 
-          <div class="editor-actions">
+          <div class="actions">
             <label for="language">لغة البرمجة</label>
             <select id="language" dir="ltr">
               <option value="cpp">C++</option>
@@ -58,7 +58,7 @@
               <option value="24">24 px</option>
             </select>
 
-            <button id="run" class="primary-button" type="button" disabled>تشغيل</button>
+            <button id="run" class="primary" type="button" disabled>تشغيل</button>
             <button id="check" type="button" disabled>اختبر الحل</button>
           </div>
         </div>
@@ -100,7 +100,7 @@
             شاشة التشغيل
           </h2>
 
-          <div class="terminal-actions">
+          <div class="actions">
             <span id="status" role="status">جاهز</span>
             <button id="clear-terminal" class="quiet-button" type="button" disabled>
               مسح الشاشة
