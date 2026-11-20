@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="موقع للتدرّب على البرمجة بلغات C++ وJava وC#.">
+  <title>MNS Compiler</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="questions.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container mns-header">
+      <h1 class="mns-wordmark" dir="ltr">MNS <span>Compiler</span></h1>
+
+      <div class="theme-switch" role="group" aria-label="مظهر الموقع">
+        <button type="button" data-theme-choice="dark" aria-pressed="true">
+          <span aria-hidden="true">☾</span> Dark
+        </button>
+        <button type="button" data-theme-choice="light" aria-pressed="false">
+          <span aria-hidden="true">☀</span> Light
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container workspace">
+    <aside class="panel exercises" aria-labelledby="exercises-title">
+      <h2 id="exercises-title">تمارين البرمجة</h2>
+      <nav id="questions" aria-label="قائمة التمارين"></nav>
+      <article id="statement">
+        <p>اختر تمرينًا لعرض السؤال ومثال على المدخلات والمخرجات.</p>
+      </article>
+    </aside>
+
+    <section class="workbench" aria-labelledby="editor-title">
+      <section class="panel editor-panel">
+        <div class="panel-header">
+          <h2 id="editor-title">محرّر الكود</h2>
+
+          <div class="editor-actions">
+            <label for="language">لغة البرمجة</label>
+            <select id="language" dir="ltr">
+              <option value="cpp">C++</option>
+              <option value="java">Java</option>
+              <option value="csharp">C#</option>
+            </select>
+
+            <label for="font-size">حجم الخط</label>
+            <select id="font-size" dir="ltr">
+              <option value="12">12 px</option>
+              <option value="14" selected>14 px</option>
+              <option value="16">16 px</option>
+              <option value="18">18 px</option>
+              <option value="20">20 px</option>
+              <option value="24">24 px</option>
+            </select>
+
+            <button id="run" class="primary-button" type="button" disabled>تشغيل</button>
+            <button id="check" type="button" disabled>اختبر الحل</button>
+          </div>
+        </div>
+
+        <div class="file-bar">
+          <div class="file-tab" dir="ltr">
+            <span id="file-icon" aria-hidden="true">C++</span>
+            <span id="filename">main.cpp</span>
+          </div>
+
+          <div class="file-actions">
+            <span id="copy-feedback" class="sr-only" role="status"></span>
+            <button id="copy-code" class="quiet-button" type="button">نسخ الكود</button>
+          </div>
+        </div>
+
+        <div class="code-area" dir="ltr">
+          <pre id="lines" aria-hidden="true"></pre>
+          <div class="editor-stack">
+            <textarea
+              id="code"
+              aria-label="كود البرنامج"
+              placeholder="Write your code here"
+              spellcheck="false"
+              autocapitalize="off"
+              autocomplete="off"
+              wrap="off"
+              maxlength="50000"
+            ></textarea>
+            <pre id="editor-hint" aria-hidden="true"></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel terminal-panel" aria-labelledby="terminal-title">
+        <div class="panel-header">
+          <h2 id="terminal-title">
+            <span class="terminal-icon" dir="ltr" aria-hidden="true">›_</span>
+            شاشة التشغيل
+          </h2>
+
+          <div class="terminal-actions">
+            <span id="status" role="status">جاهز</span>
+            <button id="clear-terminal" class="quiet-button" type="button" disabled>
+              مسح الشاشة
+            </button>
+          </div>
+        </div>
+
+        <div id="terminal" dir="ltr"><span id="terminal-output" role="log"></span><input
+          id="terminal-input"
+          type="text"
+          aria-label="اكتب القيمة واضغط Enter"
+          autocomplete="off"
+          spellcheck="false"
+          maxlength="4096"
+          hidden
+        ></div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
